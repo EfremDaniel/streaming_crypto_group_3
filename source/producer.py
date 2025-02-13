@@ -1,10 +1,7 @@
 # producer
 from quixstreams import Application
-from constants import COINMARKET_API
-from pprint import pprint
 import time
-
-
+from connect_api import get_data_from_api
 
 def main():
     app = Application(broker_address="localhost:9092", consumer_group="coin_group")
@@ -12,7 +9,7 @@ def main():
 
     with app.get_producer() as producer:
         while True:
-            coin_latest = get_latest_coin_data("BTC")
+            coin_latest = get_data_from_api("XRP")
 
             kafka_message = coins_topic.serialize(
                 key=coin_latest["symbol"], value=coin_latest
@@ -26,7 +23,7 @@ def main():
                 topic=coins_topic.name, key=kafka_message.key, value=kafka_message.value
             )
 
-            time.sleep(10)
+            time.sleep(30)
 
 
 if __name__ == "__main__":
