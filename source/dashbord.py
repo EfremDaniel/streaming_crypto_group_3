@@ -10,7 +10,7 @@ from constants import (
     POSTGRES_PORT,
 )
 
-from charts import line_chart_px, line_chart
+from charts import line_chart
 
 
 connection_string = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
@@ -31,15 +31,15 @@ def load_data(query):
 def layout():
     df = load_data(
         """
-                SELECT * FROM bitcoin;
+                SELECT timestamp, coin, price_sek, price_dkk, price_nok, price_isk, price_eur, volume FROM "XRP";
                 """
     )
-    st.markdown("# Bitcoin data")
+    st.markdown("# XRP data")
     st.markdown("## Latest data")
     
-    st.dataframe(df.tail())
+    st.dataframe(df.tail(10))
     
-    st.markdown("## Bitcoin latest price in USD")
+    st.markdown("## XRP latest price in USD")
 
     price_chart = line_chart(x=df.index, y=df["price_usd"], title="price USD")
 
