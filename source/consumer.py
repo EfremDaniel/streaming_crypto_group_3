@@ -1,5 +1,8 @@
 # consumer
 from quixstreams import Application
+
+from quixstreams import Application
+from quixstreams.sinks.community.postgresql import PostgreSQLSink
 from constants import (
     POSTGRES_DBNAME,
     POSTGRES_HOST,
@@ -69,7 +72,6 @@ def create_postgres_sink():
 
     return sink
 
-
 def main():
     app = Application(
         broker_address="localhost:9092",
@@ -100,7 +102,6 @@ def main():
     sdf.sink(postgres_sink)
 
     app.run()
-
 
 if __name__ == "__main__":
     main()
