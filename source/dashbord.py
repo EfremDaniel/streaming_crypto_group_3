@@ -27,21 +27,32 @@ def load_data(query):
         df = df.set_index("timestamp")
     return df
 
+# create a function that makes it able to change graph and name based on selectbox
 
 def layout():
     df = load_data(
         """
-                SELECT timestamp, coin, price_sek, price_dkk, price_nok, price_isk, price_eur, volume FROM "XRP";
+                SELECT timestamp, coin, price_sek AS SEK, price_dkk AS DKK, price_nok AS NOK, price_isk AS ISK, price_eur AS EUR, volume FROM "XRP";
                 """
     )
-    st.markdown("# XRP data")
-    st.markdown("## Latest data")
+
+    df.columns = df.columns.str.upper()
+
+    st.markdown("# Data for the cryptocurrency XRP")
+
+    st.markdown("## Latest incoming data")
     
     st.dataframe(df.tail(10))
     
-    st.markdown("## XRP latest price in USD")
+    st.markdown("## Select a certain exchange")
 
-    price_chart = line_chart(x=df.index, y=df["price_usd"], title="price USD")
+    exchange_options = [col for col in df.columns if col not in ["timestamp", "COIN"]]
+
+    exchange = st.selectbox("Choose your exchange", exchange_options)
+
+    st.markdown(f"## Graph on XRP latest price in {exchange.upper()}")
+
+    price_chart = line_chart(x=df.index, y=df[exchange], title=f"Price in {exchange.upper()}")
 
     st.pyplot(price_chart, bbox_inches="tight")
 
