@@ -13,12 +13,47 @@ from quixstreams.sinks.community.postgresql import PostgreSQLSink
 
 def extract_coin_data(message):
     latest_quote = message["quote"]["USD"]
+    price_usd = latest_quote["price"]
+    price_sek = update_price_in_currency(price_usd, "SEK")
+    price_dkk = update_price_in_currency(price_usd, "DKK")
+    price_nok = update_price_in_currency(price_usd, "NOK")
+    price_isk = update_price_in_currency(price_usd, "ISK")
+    
     return {
         "coin": message["name"],
-        "price_usd": latest_quote["price"],
+        "price_sek": price_sek,
+        "price_dkk": price_dkk,
+        "price_nok": price_nok,
+        "price_isk": price_isk,
         "volume": latest_quote["volume_24h"],
         "updated": message["last_updated"],
     }
+
+
+
+# exchange by hardcoding
+def get_exchange_rate_hardcoded(target_currency):
+    exchange_rates = {
+        "SEK": 8.5,    
+        "DKK": 6.3,    
+        "NOK": 8.7,    
+        "ISK": 130.0   
+    }
+    
+    if target_currency in exchange_rates:
+        return exchange_rates[target_currency]
+    else:
+        print(f"Valutan {target_currency} stöds inte.")
+        return None
+
+def update_price_in_currency(price_in_usd, target_currency):
+    exchange_rate = get_exchange_rate_hardcoded(target_currency)
+    if exchange_rate:
+        return price_in_usd * exchange_rate
+    else:
+        print(f"Kan inte uppdatera priset, eftersom växlingskursen inte kunde hämtas för {target_currency}.")
+        return None
+    
 
 
 def create_postgres_sink():
@@ -47,8 +82,18 @@ def main():
 
     # transformations
     sdf = sdf.apply(extract_coin_data)
+    
 
-    sdf.update(lambda coin_data: print(coin_data))
+    
+    sdf.update(lambda coin_data: print(f"Coin Data:\n"
+                                           f"Coin: {coin_data['coin']}\n"
+                                           f"Price in SEK: {coin_data['price_sek']}\n"
+                                           f"Price in DKK: {coin_data['price_dkk']}\n"
+                                           f"Price in NOK: {coin_data['price_nok']}\n"
+                                           f"Price in ISK: {coin_data['price_isk']}\n"
+                                           f"Volume: {coin_data['volume']}\n"
+                                           f"Updated: {coin_data['updated']}"))
+    
 
     # sink to postgres
     postgres_sink = create_postgres_sink()
