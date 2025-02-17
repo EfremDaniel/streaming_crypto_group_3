@@ -17,6 +17,11 @@ def main():
 
             print(
                 f"produce event with key = {kafka_message.key}, price = {coin_latest['quote']['USD']['price']}"
+                f"volume_24h = {coin_latest['quote']['USD']['volume_24h']},"
+                f"market_cap = {coin_latest['quote']['USD']['market_cap']},"
+                f"percent_change_1h = {coin_latest['quote']['USD']['percent_change_1h']},"
+                f"percent_change_24h = {coin_latest['quote']['USD']['percent_change_24h']},"
+                f"percent_change_7d = {coin_latest['quote']['USD']['percent_change_7d']}"   
             )
 
             producer.produce(
