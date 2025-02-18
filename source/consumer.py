@@ -49,7 +49,7 @@ def get_exchange_rate_hardcoded(target_currency):
     if target_currency in exchange_rates:
         return exchange_rates[target_currency]
     else:
-        print(f"Valutan {target_currency} stöds inte.")
+        print(f"Currency {target_currency} not supported.")
         return None
 
 def update_price_in_currency(price_in_usd, target_currency):
@@ -57,7 +57,7 @@ def update_price_in_currency(price_in_usd, target_currency):
     if exchange_rate:
         return round(price_in_usd * exchange_rate, 3)
     else:
-        print(f"Kan inte uppdatera priset, eftersom växlingskursen inte kunde hämtas för {target_currency}.")
+        print(f"Cannot update price, since the currency was not able to be found for {target_currency}.")
         return None
     
 
