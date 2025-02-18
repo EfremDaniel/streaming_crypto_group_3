@@ -87,18 +87,18 @@ def main():
 
     # transformations
     sdf = sdf.apply(extract_coin_data)
-    
 
-    
-    sdf.update(lambda coin_data: print(f"Coin Data:\n"
-                                           f"Coin: {coin_data['coin']}\n"
-                                           f"Price in SEK: {coin_data['price_sek']:.3f}\n"
-                                           f"Price in DKK: {coin_data['price_dkk']:.3f}\n"
-                                           f"Price in NOK: {coin_data['price_nok']:.3f}\n"
-                                           f"Price in ISK: {coin_data['price_isk']:.3f}\n"
-                                           f"Price in EUR: {coin_data['price_eur']:.3f}\n"
-                                           f"Volume: {coin_data['volume']:.3f}\n"
-                                           f"Updated: {coin_data['updated']}"))
+
+    sdf.update(lambda coin_data: 
+    print(f"Coin Data:\n"
+     f"Coin: {coin_data['coin']}\n"
+     f"Price in SEK: {coin_data['price_sek']:.3f}\n"
+     f"Price in DKK: {coin_data['price_dkk']:.3f}\n"
+     f"Price in NOK: {coin_data['price_nok']:.3f}\n"
+     f"Price in ISK: {coin_data['price_isk']:.3f}\n"
+     f"Price in EUR: {coin_data['price_eur']:.3f}\n"
+     f"Volume: {coin_data['volume']:.3f}\n"
+     f"Updated: {coin_data['updated']}"))
     
 
     # sink to postgres
