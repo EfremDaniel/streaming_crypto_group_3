@@ -11,7 +11,7 @@ from constants import (
 )
 
 from charts import line_chart
-
+from volume_prefixes import format_numbers
 
 connection_string = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
 
@@ -54,12 +54,14 @@ def layout():
     df.columns = df.columns.str.upper()
 
     # calculate volumechange and pricechange
-    df['VOLUME_CHANGE'] = df['VOLUME'] - df['PREV_VOLUME']
+    df['VOLUME_CHANGE'] = df['VOLUME'] - df['PREV_VOLUME']          # maybe not use this one(don't understand the data), maybe percentage 1 day instead
     df['PRICE_CHANGE_SEK'] = df['SEK'] - df['PREV_PRICE_SEK']
     df['PRICE_CHANGE_DKK'] = df['DKK'] - df['PREV_PRICE_DKK']
     df['PRICE_CHANGE_NOK'] = df['NOK'] - df['PREV_PRICE_NOK']
     df['PRICE_CHANGE_ISK'] = df['ISK'] - df['PREV_PRICE_ISK']
     df['PRICE_CHANGE_EUR'] = df['EUR'] - df['PREV_PRICE_EUR']
+
+    df["VOLUME"] = df["VOLUME"].apply(format_numbers)
 
     st.markdown("# Data for the cryptocurrency XRP")
 
@@ -67,17 +69,16 @@ def layout():
     
     st.dataframe(df.tail(10))
     
-    st.markdown("## Select a certain exchange")
-
+    st.markdown("## Selection of a certain exchange or metric")
 
    # selectbox options
 
     exchange_options = [col for col in df.columns if col not in ["TIMESTAMP", "COIN", "PREV_VOLUME", "PREV_PRICE_SEK", "PREV_PRICE_DKK", "PREV_PRICE_NOK", "PREV_PRICE_ISK", "PREV_PRICE_EUR"]]
     exchange = st.selectbox("Choose your exchange or metric", exchange_options)
 
-    st.markdown(f"## Graph on XRP latest price in {exchange.upper()}")
+    st.markdown(f"## Graph on XRP values in {exchange.upper()}")
 
-    price_chart = line_chart(x=df.index, y=df[exchange], title=f"Price in {exchange.upper()}")
+    price_chart = line_chart(x=df.index, y=df[exchange], title=f"{exchange.upper()}")
 
     st.pyplot(price_chart, bbox_inches="tight")
 
