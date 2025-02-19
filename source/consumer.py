@@ -22,7 +22,8 @@ def extract_coin_data(message):
     price_nok = update_price_in_currency(price_usd, "NOK")
     price_isk = update_price_in_currency(price_usd, "ISK")
     price_eur = update_price_in_currency(price_usd, "EUR")
-    
+    change_24h = latest_quote["percent_change_24h"]
+
     return {
         "coin": message["name"],
         "price_sek": price_sek,
@@ -32,6 +33,7 @@ def extract_coin_data(message):
         "price_eur": price_eur,
         "volume": latest_quote["volume_24h"],
         "updated": message["last_updated"],
+        "percent_change_24h": change_24h
     }
 
 
@@ -98,7 +100,9 @@ def main():
      f"Price in ISK: {coin_data['price_isk']:.3f}\n"
      f"Price in EUR: {coin_data['price_eur']:.3f}\n"
      f"Volume: {coin_data['volume']:.3f}\n"
-     f"Updated: {coin_data['updated']}"))
+     f"Updated: {coin_data['updated']}\n"
+     f"Percent change latest 24h {coin_data['percent_change_24h']}"
+     ))
     
 
     # sink to postgres
