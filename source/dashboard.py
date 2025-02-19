@@ -39,7 +39,6 @@ def layout():
             price_isk AS ISK, 
             price_eur AS EUR, 
             volume,
-            LAG(volume) OVER (ORDER BY timestamp) AS prev_volume,
             LAG(price_sek) OVER (ORDER BY timestamp) AS prev_price_sek,
             LAG(price_dkk) OVER (ORDER BY timestamp) AS prev_price_dkk,
             LAG(price_nok) OVER (ORDER BY timestamp) AS prev_price_nok,
@@ -49,12 +48,9 @@ def layout():
         """
     )
 
-
-
     df.columns = df.columns.str.upper()
 
-    # calculate volumechange and pricechange
-    df['VOLUME_CHANGE'] = df['VOLUME'] - df['PREV_VOLUME']          # maybe not use this one(don't understand the data), maybe percentage 1 day instead
+    # calculate pricechange
     df['PRICE_CHANGE_SEK'] = df['SEK'] - df['PREV_PRICE_SEK']
     df['PRICE_CHANGE_DKK'] = df['DKK'] - df['PREV_PRICE_DKK']
     df['PRICE_CHANGE_NOK'] = df['NOK'] - df['PREV_PRICE_NOK']
@@ -65,17 +61,23 @@ def layout():
 
     st.markdown("# Data for the cryptocurrency XRP")
 
+    # KPI label
+    label = ("Volume (24H) in USD")
+    latest_volume = df["VOLUME"].iloc[-1]
+    st.metric(label=label, value=latest_volume)
+
+    # Raw data
     st.markdown("## Latest incoming data")
     
     st.dataframe(df.tail(10))
     
+    # selectbox options
     st.markdown("## Selection of a certain exchange or metric")
 
-   # selectbox options
-
-    exchange_options = [col for col in df.columns if col not in ["TIMESTAMP", "COIN", "PREV_VOLUME", "PREV_PRICE_SEK", "PREV_PRICE_DKK", "PREV_PRICE_NOK", "PREV_PRICE_ISK", "PREV_PRICE_EUR"]]
+    exchange_options = [col for col in df.columns if col not in ["TIMESTAMP", "COIN", "VOLUME", "PREV_PRICE_SEK", "PREV_PRICE_DKK", "PREV_PRICE_NOK", "PREV_PRICE_ISK", "PREV_PRICE_EUR"]]
     exchange = st.selectbox("Choose your exchange or metric", exchange_options)
 
+    # Graph
     st.markdown(f"## Graph on XRP values in {exchange.upper()}")
 
     price_chart = line_chart(x=df.index, y=df[exchange], title=f"{exchange.upper()}")
