@@ -39,6 +39,7 @@ def layout():
             price_isk AS ISK, 
             price_eur AS EUR, 
             volume,
+            percent_change_24h,
             LAG(price_sek) OVER (ORDER BY timestamp) AS prev_price_sek,
             LAG(price_dkk) OVER (ORDER BY timestamp) AS prev_price_dkk,
             LAG(price_nok) OVER (ORDER BY timestamp) AS prev_price_nok,
@@ -65,6 +66,10 @@ def layout():
     label = ("Volume (24H) in USD")
     latest_volume = df["VOLUME"].iloc[-1]
     st.metric(label=label, value=latest_volume)
+
+    label2 = ("Percentage change 24H")
+    latest_percentage = df["PERCENT_CHANGE_24H"].iloc[-1]
+    st.metric(label=label2, value=latest_percentage)
 
     # Raw data
     st.markdown("## Latest incoming data")
