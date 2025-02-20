@@ -86,7 +86,7 @@ def layout():
     
     # selectbox options to choose exchange value for the graph
     st.markdown("## Selection of a certain exchange or metric")
-    exchange_options = [col for col in df.columns if col not in ["TIMESTAMP", "COIN", "VOLUME", "PREV_PRICE_SEK", "PREV_PRICE_DKK", "PREV_PRICE_NOK", "PREV_PRICE_ISK", "PREV_PRICE_EUR"]]
+    exchange_options = [col for col in df.columns if col not in ["TIMESTAMP", "COIN", "VOLUME", "PERCENT_CHANGE_24H", "PREV_PRICE_SEK", "PREV_PRICE_DKK", "PREV_PRICE_NOK", "PREV_PRICE_ISK", "PREV_PRICE_EUR"]]
     exchange = st.selectbox("Choose your exchange or metric", exchange_options)
 
     # Graph
