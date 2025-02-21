@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 COINMARKET_API = os.getenv("COINMARKET_API")
+EXCHANGERATE_API = os.getenv("EXCHANGERATE_API")
 
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT")

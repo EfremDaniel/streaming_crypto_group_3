@@ -12,6 +12,11 @@ from constants import (
 
 from charts import line_chart
 from volume_prefixes import format_numbers
+import requests
+from connect_api_exchangerate import get_exchange_rates
+
+
+
 
 connection_string = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
 
@@ -25,6 +30,9 @@ def load_data(query):
         df = pd.read_sql(query, conn)
         df = df.set_index("timestamp")
     return df
+
+
+
 
 # create a function that makes it able to change graph and name based on selectbox
 
@@ -57,36 +65,33 @@ def layout():
     df['PRICE_CHANGE_ISK'] = df['ISK'] - df['PREV_PRICE_ISK']
     df['PRICE_CHANGE_EUR'] = df['EUR'] - df['PREV_PRICE_EUR']
 
-    # Importing function from python script volume_prefixes
     df["VOLUME"] = df["VOLUME"].apply(format_numbers)
 
-    st.markdown("# Data for the cryptocurrency XRP")
-    st.markdown("Explore a comprehensive view of XRP, one of the leading cryptocurrencies reshaping the global financial landscape. This dashboard is designed to provide you with comprehensive insights and real-time data. This will give understanding over the landscape of cryptocurrency where it will help you to make informed decisions. empowering you to make informed decisions in the ever-evolving landscape of cryptocurrency. ")     
-    st.markdown("#### Data and statistics for XRP")
-    st.markdown("##### KPIs for volumes in XRP (USD)")
-    st.markdown("The KPIs here gives a overview regarding the volume and the changes that happens live. Volume refers to the total amount of the cryptocurrency that has been traded within a specific time period. This usually includes both buying and selling activities. ")
+    # Remove the columns you don't want to display
+    df_display = df.drop(columns=['PREV_PRICE_SEK', 'PREV_PRICE_DKK', 'PREV_PRICE_NOK', 'PREV_PRICE_ISK', 'PREV_PRICE_EUR'])
 
+
+
+    st.markdown("# Data for the cryptocurrency XRP")
 
     # KPI label
-    label = ("Volume (24H)").upper()
+    label = ("Volume (24H) in USD")
     latest_volume = df["VOLUME"].iloc[-1]
     st.metric(label=label, value=latest_volume)
 
-    label2 = ("Percentage change in the last 24H").upper()
+    label2 = ("Percentage change 24H")
     latest_percentage = df["PERCENT_CHANGE_24H"].iloc[-1]
-    decimal_2 = f"{latest_percentage:.2f}"
-    st.metric(label=label2, value=decimal_2)
+    st.metric(label=label2, value=latest_percentage)
 
-    # Markdowns for the raw data
-    st.markdown("## Latest incoming data")
-    st.markdown("This table provides an overview of the value of XRP. The value of XRP, like other cryptocurrencies, is subject to market fluctuations and can change rapidly in response to various economic factors and news. The data presented here reflects its market price at specific points in time")
-    
     # Raw data
-    st.dataframe(df.tail(10))
+    st.markdown("## Latest incoming data")
     
-    # selectbox options to choose exchange value for the graph
+    st.dataframe(df_display.tail(10))
+    
+    # selectbox options
     st.markdown("## Selection of a certain exchange or metric")
-    exchange_options = [col for col in df.columns if col not in ["TIMESTAMP", "COIN", "VOLUME", "PERCENT_CHANGE_24H", "PREV_PRICE_SEK", "PREV_PRICE_DKK", "PREV_PRICE_NOK", "PREV_PRICE_ISK", "PREV_PRICE_EUR"]]
+
+    exchange_options = [col for col in df.columns if col not in ["TIMESTAMP", "COIN", "VOLUME", "PREV_PRICE_SEK", "PREV_PRICE_DKK", "PREV_PRICE_NOK", "PREV_PRICE_ISK", "PREV_PRICE_EUR"]]
     exchange = st.selectbox("Choose your exchange or metric", exchange_options)
 
     # Graph
@@ -96,11 +101,36 @@ def layout():
 
     st.pyplot(price_chart, bbox_inches="tight")
 
-    st.markdown("#### About XRP")
-    st.markdown("XRP is a digital asset and cryptocurrency created by Ripple Labs. It is used to facilitate fast and cost-effective international money transfers and payments")
-    st.markdown("#### Disclaimer")
-    st.markdown("This dashboard is for informational purposes only and should not be considered financial advice. Always conduct your own research before making investment decisions.")
-   
+
+    # Lägg till selectbox för att välja valuta
+    valuta_options = ["SEK", "DKK", "NOK", "ISK", "EUR"]
+    valuta = st.selectbox("Välj valuta", valuta_options)
+
+    # Uppdatera graferna baserat på aktuella valutakurser
+    rates = get_exchange_rates()
+
+    df["SEK"] = df["SEK"] * rates["SEK"]
+    df["DKK"] = df["DKK"] * rates["DKK"]
+    df["NOK"] = df["NOK"] * rates["NOK"]
+    df["ISK"] = df["ISK"] * rates["ISK"]
+    df["EUR"] = df["EUR"] * rates["EUR"]
+                      
+    # Uppdatera grafen baserat på vald valuta
+    st.markdown(f"## Prisgraf för XRP i {valuta}")
+
+    if valuta == "SEK":
+        price_chart = line_chart(x=df.index, y=df["SEK"], title=f"Pris i {valuta}")
+    elif valuta == "DKK":
+        price_chart = line_chart(x=df.index, y=df["DKK"], title=f"Pris i {valuta}")
+    elif valuta == "NOK":
+        price_chart = line_chart(x=df.index, y=df["NOK"], title=f"Pris i {valuta}")
+    elif valuta == "ISK":
+        price_chart = line_chart(x=df.index, y=df["ISK"], title=f"Pris i {valuta}")
+    elif valuta == "EUR":
+        price_chart = line_chart(x=df.index, y=df["EUR"], title=f"Pris i {valuta}")
+
+    st.pyplot(price_chart, bbox_inches="tight")
+
 
 if __name__ == "__main__":
     layout()
